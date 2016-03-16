@@ -1,11 +1,11 @@
 package com.twh5257_jdm5908_bw.ist402.fibonacciflower;
 
 import android.content.Context;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -19,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     private Button pinkBtn, goldBtn, clearBtn;
     private RelativeLayout relativeLayout;
     Flower myFlower;
+    private int width, height;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,16 +31,22 @@ public class MainActivity extends AppCompatActivity {
         initialize();
         layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         relativeLayout = (RelativeLayout) findViewById(R.id.relativeLayout1);
+
+        relativeLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                relativeLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                width = relativeLayout.getWidth();
+                height = relativeLayout.getHeight();
+            }
+        });
+
         pinkBtn = (Button) findViewById(R.id.button1);
         goldBtn = (Button) findViewById(R.id.button2);
         clearBtn = (Button) findViewById(R.id.button3);
         pinkBtn.setOnClickListener(addPetal);
         goldBtn.setOnClickListener(addPetal);
         clearBtn.setOnClickListener(clearPetals);
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        myFlower.set_xCenter(metrics.widthPixels / 2);
-        myFlower.set_yCenter(metrics.heightPixels / 2);
     }
 
     private void initialize(){
@@ -61,12 +68,18 @@ public class MainActivity extends AppCompatActivity {
             else{
                 petal = (ImageView) layoutInflater.inflate(R.layout.petal_gold, null);
             }
-            petal.setX(myFlower.get_xCenter());
-            petal.setY(myFlower.get_yCenter());
+            petal.setX(width / 2 - width / 8);
+            petal.setY(height / 2 - 32);
             petal.setPivotX(100);
             petal.setPivotY(0);
             petal.setScaleX(myFlower.getScaleX());
             petal.setScaleY(myFlower.getScaleY());
+            float x = petal.getX();
+            float y =  petal.getY();
+            float petalWidth = petal.getWidth();
+            float petalIntrinsicWidth = petal.getDrawable().getIntrinsicWidth();
+            float petalHeight = petal.getHeight();
+            float petalIntrinsicHeight = petal.getDrawable().getIntrinsicWidth();
             petal.setRotation(myFlower.getRotate());
             relativeLayout.addView(petal, 0);
             allPetals.add(petal);
